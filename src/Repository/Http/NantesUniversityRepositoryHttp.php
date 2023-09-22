@@ -32,6 +32,7 @@ class NantesUniversityRepositoryHttp
 
     public function getCalendarFileFromDepartmentAndGroup(string $department, int $group): File
     {
+        $filename = '';
         try {
             $request = $this->nantesUniversityIcsFileClient->request('GET', '/calendar/ics', [
                 'query' => [
@@ -40,12 +41,16 @@ class NantesUniversityRepositoryHttp
             ]);
 
             $response = $request->getContent();
-            $this->filesystem->dumpFile($this->icsDirectory.'/'.$department.'/'.$group.'.ics', $response);
+
+            $filename = $this->icsDirectory.'/'.$department.'/'.$group.'.ics';
+            $this->filesystem->dumpFile($filename, $response);
 
         } catch (TransportExceptionInterface|ClientExceptionInterface|RedirectionExceptionInterface|ServerExceptionInterface $e) {
             $this->logger->error(__METHOD__.'_unable_to_find_calendar', [
                 'exception' => $e,
             ]);
         }
+
+        return new File($filename);
     }
 }
