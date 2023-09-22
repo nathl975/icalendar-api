@@ -3,6 +3,7 @@
 namespace App\Repository\Http;
 
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
@@ -14,13 +15,19 @@ class NantesUniversityRepositoryHttp
 {
     private HttpClientInterface $nantesUniversityIcsFileClient;
     private LoggerInterface $logger;
+    private Filesystem $filesystem;
+    private string $icsDirectory;
 
     public function __construct(
         HttpClientInterface $nantesUniversityIcsFileClient,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        Filesystem $filesystem,
+        string $icsDirectory
     ) {
         $this->nantesUniversityIcsFileClient = $nantesUniversityIcsFileClient;
         $this->logger = $logger;
+        $this->filesystem = $filesystem;
+        $this->icsDirectory = $icsDirectory;
     }
 
     public function getCalendarFileFromDepartmentAndGroup(string $department, int $group): File
@@ -28,15 +35,15 @@ class NantesUniversityRepositoryHttp
         try {
             $request = $this->nantesUniversityIcsFileClient->request('GET', '/calendar/ics', [
                 'query' => [
-                    'timetables[0]' => '81605',
+                    'timetables[0]' => $group,
                 ],
             ]);
 
             $response = $request->getContent();
-            dump($response);die;
+            $this->filesystem->dumpFile($this->icsDirectory.'/'.$department.'/'.$group.'.ics', $response);
 
         } catch (TransportExceptionInterface|ClientExceptionInterface|RedirectionExceptionInterface|ServerExceptionInterface $e) {
-            $this->logger->error(__METHOD__.'_unable_to_find-calendar', [
+            $this->logger->error(__METHOD__.'_unable_to_find_calendar', [
                 'exception' => $e,
             ]);
         }

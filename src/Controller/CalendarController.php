@@ -14,10 +14,10 @@ class CalendarController extends AbstractController
         $this->nantesUniversityRepositoryHttp = $nantesUniversityRepositoryHttp;
     }
 
-    #[Route('/calendar', name: 'app_calendar')]
-    public function calendar(): Response
+    #[Route('/calendar/{department}/{group}', name: 'app_calendar')]
+    public function calendar(string $department, int $group): Response
     {
-        return $this->nantesUniversityRepositoryHttp->getCalendarFileFromDepartmentAndGroup('', 0);
+        return $this->nantesUniversityRepositoryHttp->getCalendarFileFromDepartmentAndGroup($department, $group);
     }
 
 }
