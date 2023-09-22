@@ -12,7 +12,14 @@ framework:
         cookie_secure: auto
         cookie_samesite: lax
         storage_factory_id: session.storage.factory.native
-
+    
+    http_client:
+        scoped_clients:
+            nantes_university.ics_file.client:
+                base_uri: '%env(NANTES_UNIVERSITY_ICS_FILES)%'
+                headers:
+                    Accept: 'text/calendar'
+    
     #esi: true
     #fragments: true
     php_errors:
